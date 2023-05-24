@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Get Article Info from Hash</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    h1 {
+      margin: 0;
+      padding: 20px;
+      background-color: #007acc;
+      color: white;
+      text-align: center;
+    }
+    label {
+      display: block;
+      margin: 20px;
+    }
+    input[type="text"] {
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      width: 80%;
+      max-width: 600px;
+      margin: 0 20px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #007acc;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #005b8e;
+    }
+    #output {
+      margin: 20px;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      max-width: 600px;
+    }
+    #output p {
+      margin: 0;
+      padding: 5px 0;
+    }
+    #output b {
+      font-weight: bold;
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-md5/2.18.0/js/md5.min.js"></script>
+  <script src="enablenotify.js"></script> 
+
+  <script>
+   
+    function getArticleInfoFromHash(doc, hash) {
+      const anchor = doc.querySelector(`a[href="#${hash}"]`);
+      if (!anchor) {
+        return null;
+      }
+      const row = anchor.closest('tr');
+      if (!row) {
+        return null;
+      }
+      const titleElement = row.querySelector('td:nth-child(1)');
+      const yearElement = row.querySelector('td:nth-child(2)');
+      const authorsElement = row.querySelector('td:nth-child(3)');
+      return {
+        title: titleElement ? titleElement.textContent.trim() : '',
+        year: yearElement ? yearElement.textContent.trim() : '',
+        authors: authorsElement ? authorsElement.textContent.trim() : '',
+      };
+    }
+
+    function showArticleInfo() {
+
+      const input = document.querySelector('#url-input');
+      const urlhash =  input.value;
+      const hash = getHashFromUrl(urlhash);
+      const url = normalizeUrl(urlhash);
+      
+      fetch(url)
+        .then(response => response.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(html, 'text/html');
+
+          notifyEnabled(doc, url);  
+
+          const articleInfo = getArticleInfoFromHash(doc, hash);
+          if (articleInfo) {
+            const output = document.querySelector('#output');
+            output.innerHTML = `
+              <p><b>Title:</b> ${articleInfo.title}</p>
+              <p><b>Year:</b> ${articleInfo.year}</p>
+              <p><b>Authors:</b> ${articleInfo.authors}</p>
+            `;
+          } else {
+            alert('Article not found');
+          }
+        })
+        .catch(error => {
+          alert(`Error fetching URL: ${error}`);
+        });
+    }
+  </script>
+</head>
+<body>
+  <h1>Get Article Info from Hash</h1>
+  <label for="url-input">URL with Hash:</label>
+  <input type="text" id="url-input">
+  <button onclick="showArticleInfo()">Get Info</button>
+  <div id="output"></div>
+</body>
+</html>

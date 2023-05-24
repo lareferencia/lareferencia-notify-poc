@@ -105,80 +105,25 @@
 <!-- BEGIN POC Script -->
 <!-- This POC script will be later packed using webpack -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-md5/2.18.0/js/md5.min.js"></script>
-  <script>
-
-   // this function normalize the string to be used in the hash function by removing special characters and extra spaces and converting to uppercase
-   function normalizeString(str) {
-      return str.trim().toUpperCase().replace(/[^\w\s]/g, '').replace(/\s+/g, ' ').trim();
-    }
-
-   // this function will be called when the page is loaded 
-   function notifyEnabler() {
-
-      // get the url of the page,
-      var url = window.location.href;
-      // clean the url from the hash
-      url = url.split('#')[0];
-
-      const table = document.querySelector('table');
-      
-      // add the extra columns to the table
-      const headerRow = table.rows[0];
-      const uniqueUrlHeader = headerRow.insertCell(3);
-      uniqueUrlHeader.innerHTML = '<b>Unique URL</b>';
-      const certificationStatusHeader = headerRow.insertCell(4);
-      certificationStatusHeader.innerHTML = '<b>Certification Status</b>';
-      
-      // get all the rows in the table  
-      const rows = table.querySelectorAll('tbody tr');
-      
-      // for each row in the table
-      rows.forEach(row => {
-
-        // get the normalized version of title, year and authors
-        const title = normalizeString(row.querySelector('td:nth-child(1)').textContent);
-        const year = normalizeString(row.querySelector('td:nth-child(2)').textContent);
-        const authors = normalizeString(row.querySelector('td:nth-child(3)').textContent);
-
-        // calculate the hash and add it to the table  
-        const hash = md5(title + authors + year);
-        const uniqueUrl = `${url}#${hash}`;
-
-       // create a new cell with the anchor and add it to the row
-        const cell = document.createElement('td');
-        const anchor = document.createElement('a');
-        anchor.href = `#${hash}`;
-        anchor.textContent = uniqueUrl 
-        cell.appendChild(anchor);
-        row.appendChild(cell);
-
-        // create a new cell for the certification status and add it to the row
-        const certifiedCell = document.createElement('td');
-        row.appendChild(certifiedCell);
-
-        // call the is_certified() function for the unique URL and update the certification status cell
-        const isCertified = is_certified(uniqueUrl);
-        if (isCertified) {
-          certifiedCell.textContent = 'CERTIFIED';
-        } else {
-          const askButton = document.createElement('button');
-          askButton.textContent = 'Ask for certification';
-          certifiedCell.appendChild(askButton);
-
-          // add an event listener to the askButton to call the askForCertification() function when clicked
-          askButton.addEventListener('click', () => {
-          askForCertification(uniqueUrl);
-        }); 
-        }
-      });
-    }
-
+<script src="enablenotify.js"></script> 
+ 
+<script>
     // this function will be called when the loadButton is clicked
     const loadButton = document.getElementById('loadButton');
     loadButton.addEventListener('click', () => {
-     notifyEnabler();
+      
+        // get the url of this page,
+        var url = normalizeUrl(window.location.href);
+   
+        // get the document object
+        const dom = document;
+
+        // call the notifyEnabler function
+        notifyEnabler(dom, url);
+
     });
   </script>
+ 
  <!-- END POC Script -->
 
  <!-- Simple Linked Data Notification Sender -->
