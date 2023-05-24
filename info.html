@@ -93,7 +93,7 @@
           const parser = new DOMParser();
           const doc = parser.parseFromString(html, 'text/html');
 
-          notifyEnabled(doc, url);  
+          notifyEnabler(doc, url);  
 
           const articleInfo = getArticleInfoFromHash(doc, hash);
           if (articleInfo) {
