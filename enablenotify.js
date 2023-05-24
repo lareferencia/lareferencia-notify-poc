@@ -25,7 +25,7 @@ function normalizeUrl(url) {
 }
 
 // change the dom to add the unique url and the certification status to each row
-function notifyEnabler(dom, url) {
+function notifyEnabler(dom, url, is_certified_function=null) {
     const table = dom.querySelector('table');
 
     const headerRow = table.rows[0];
@@ -54,17 +54,22 @@ function notifyEnabler(dom, url) {
         const certifiedCell = document.createElement('td');
         row.appendChild(certifiedCell);
 
-        const isCertified = is_certified(uniqueUrl);
-        if (isCertified) {
-            certifiedCell.textContent = 'CERTIFIED';
-        } else {
-            const askButton = document.createElement('button');
-            askButton.textContent = 'Ask for certification';
-            certifiedCell.appendChild(askButton);
+        // if the function is provided, check if the paper is certified
+        if ( is_certified_function) {
 
-            askButton.addEventListener('click', () => {
-                askForCertification(uniqueUrl);
-            });
+            const isCertified = is_certified_function(uniqueUrl);
+            if (isCertified) {
+                certifiedCell.textContent = 'CERTIFIED';
+            } else {
+                const askButton = document.createElement('button');
+                askButton.textContent = 'Ask for certification';
+                certifiedCell.appendChild(askButton);
+
+                askButton.addEventListener('click', () => {
+                    askForCertification(uniqueUrl);
+                });
+            }
         }
+        
     });
 }
